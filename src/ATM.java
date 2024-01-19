@@ -99,19 +99,28 @@ public class ATM {
             System.out.print("Option: ");
             option = scan.nextInt();
             if (option == 1) {
-                // Still need to implement $5 and $20 function
                 System.out.println();
                 System.out.println("Which account would you like to withdraw money from? (Enter the number)");
                 System.out.println("1. Savings Account");
                 System.out.println("2. Checking Account");
                 int option2 = scan.nextInt();
                 if (option2 == 1) {
-                    System.out.print("How much money would you like to withdraw from your Savings Account?: $");
+                    System.out.print("How much money would you like to withdraw from your Savings Account? (Multiple of 5): $");
                     int money = scan.nextInt();
+                    while ((money > saveAccount.getMoney() || money % 5 != 0)) {
+                        System.out.println("Invalid amount!");
+                        System.out.print("How much money would you like to withdraw from your Savings Account? (Multiple of 5): $");
+                        money = scan.nextInt();
+                    }
                     saveAccount.withdrawMoney(money);
                 } else {
                     System.out.print("How much money would you like to withdraw from your Checking Account?: $");
                     int money = scan.nextInt();
+                    while ((money > checkAccount.getMoney() || money % 5 != 0)) {
+                        System.out.println("Invalid amount!");
+                        System.out.print("How much money would you like to withdraw from your Checking Account? (Multiple of 5): $");
+                        money = scan.nextInt();
+                    }
                     checkAccount.withdrawMoney(money);
                 }
             } else if (option == 2) {
