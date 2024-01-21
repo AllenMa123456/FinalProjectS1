@@ -60,10 +60,11 @@ public class ATM {
 
 
     private void enterPin() {
-        System.out.print("Please enter a pin to access your account.(No spaces please): ");
+        System.out.print("Please enter your pin to access your account.(No spaces please): ");
         String pin = scan.nextLine();
         while(!user.getPin().equals(pin)){
             System.out.println("Invalid Pin");
+            System.out.print("Please enter your pin to access your account.(No spaces please): ");
             pin = scan.nextLine();
         }
         System.out.println("Access granted.");
@@ -85,6 +86,7 @@ public class ATM {
 
     private void mainMenu() {
         int option;
+        //Options need to account for negative numbers and numbers that are not options
         while (access && !quit) {
             System.out.println();
             System.out.println("Please select an option.");
@@ -104,10 +106,17 @@ public class ATM {
                 System.out.println("1. Savings Account");
                 System.out.println("2. Checking Account");
                 int option2 = scan.nextInt();
+                while (option2 != 1 && option2 != 2) {
+                    System.out.println("Please choose a valid option");
+                    System.out.println("Which account would you like to withdraw money from? (Enter the number)");
+                    System.out.println("1. Savings Account");
+                    System.out.println("2. Checking Account");
+                    option2 = scan.nextInt();
+                }
                 if (option2 == 1) {
                     System.out.print("How much money would you like to withdraw from your Savings Account? (Multiple of 5): $");
                     int money = scan.nextInt();
-                    while ((money > saveAccount.getMoney() || money % 5 != 0)) {
+                    while ((money > saveAccount.getMoney() || money % 5 != 0) && (money > 0)) {
                         System.out.println("Invalid amount! / Insufficient Funds!");
                         System.out.print("How much money would you like to withdraw from your Savings Account? (Multiple of 5): $");
                         money = scan.nextInt();
@@ -126,10 +135,11 @@ public class ATM {
                         bills5 = scan.nextInt();
                     }
                     saveAccount.withdrawMoney(money);
-                } else {
-                    System.out.print("How much money would you like to withdraw from your Checking Account?: $");
+                }
+                if (option2 == 2) {
+                    System.out.print("How much money would you like to withdraw from your Checking Account? (Multiple of 5): $");
                     int money = scan.nextInt();
-                    while ((money > checkAccount.getMoney() || money % 5 != 0)) {
+                    while ((money > checkAccount.getMoney() || money % 5 != 0) && (money > 0)) {
                         System.out.println("Invalid amount! / Insufficient Funds!");
                         System.out.print("How much money would you like to withdraw from your Checking Account? (Multiple of 5): $");
                         money = scan.nextInt();
