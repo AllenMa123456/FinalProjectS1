@@ -164,7 +164,7 @@ public class ATM {
                     int money = scan.nextInt();
                     checkAccount.depositMoney(money);
                 }
-            } else if (option == 3) {
+            } else if (option == 3) { //Transfering money function
                 System.out.println("Please select the action you would like to perform.");
                 System.out.println("1. Transfer money FROM savings account TO checking account");
                 System.out.println("2. Transfer money FROM checking account TO savings account");
