@@ -4,6 +4,7 @@ public class ATM {
     private Scanner scan;
     private Account saveAccount;
     private Account checkAccount;
+    private TransactionHistory transactionHistory;
     private Customer user;
     private boolean access;
     private boolean quit = false;
@@ -47,43 +48,81 @@ public class ATM {
         System.out.print("What do you want your pin to be?(4 integers and no spaces) : ");
         String pin = scan.nextLine();
         while(!checkPinContents(pin)){
-            System.out.println("Something went wrong! Try again. (Please only enter 4 integers and no spaces) ");
+            System.out.print("Something went wrong! Try again. (Please only enter 4 integers and no spaces): ");
             pin = scan.nextLine();
         }
         user = new Customer(pin, name);
         saveAccount = new Account(user);
         checkAccount = new Account(user);
+        transactionHistory = new TransactionHistory();
         System.out.println("Your CHECKING and SAVING accounts have successfully been made.");
     }
-
-
-
+    private void changePin(){
+        System.out.print("Enter a new Pin: ");
+        String pin = scan.nextLine();
+        while (user.getPin().equals(pin)){
+            System.out.print("Enter a different Pin: ");
+            pin = scan.nextLine();
+        }
+        user.setPin(pin);
+        System.out.println("Changed Pin");
+        String transaction = "Changed Pin" + "\nTransaction ID: S" + transactionHistory.getTransactionIDB();
+        transactionHistory.increaseTransactionIDB();
+        transactionHistory.history.add(transaction);
+        System.out.println();
+    }
 
     private void enterPin() {
-        System.out.print("Please enter your pin to access your account.(No spaces please): ");
+        System.out.print("Please enter your pin to access your account (No spaces please): ");
         String pin = scan.nextLine();
         while(!user.getPin().equals(pin)){
             System.out.println("Invalid Pin");
-            System.out.print("Please enter your pin to access your account.(No spaces please): ");
+            System.out.print("Please enter your pin to access your account (No spaces please): ");
             pin = scan.nextLine();
         }
         System.out.println("Access granted.");
         access = true;
         mainMenu();
-
     }
     private boolean checkPinContents(String thePin) {
-        if(thePin.length() != 4) {
+        if (thePin.length() != 4 || thePin.contains("-")) {
             return false;
         }
         try {
-            int contentChecker = Integer.parseInt(thePin);
+            int contentChecker = Integer.parseInt(thePin); // Never used
         }catch (Exception e) {
             return false;
         }
         return true;
     }
-
+    private boolean quitFunction(){
+        access = false;
+        System.out.print("Would you like to do anything else? (y/n): ");
+        String ans = scan.nextLine();
+        if (ans.equals("y")){
+            enterPin();
+        }
+        else if (ans.equals("n")) {
+            System.out.println("Thank you for being a customer " + user.getName() + "!");
+            System.out.println();
+            System.out.println("Goodbye!");
+            access = false;
+            quit = true;
+            return true;
+        }
+        else {
+            System.out.println("Please enter y or n");
+            try {
+                Thread.sleep(5000);
+                for (int i = 0; i < 50; i++) {
+                    System.out.println();
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Oops! Looks like something went wrong!");
+            }
+        }
+        return false;
+    }
     private void mainMenu() {
         int option;
         //Options need to account for negative numbers and numbers that are not options
@@ -99,114 +138,292 @@ public class ATM {
             System.out.println("7. Exit");
             System.out.println();
             System.out.print("Option: ");
-            option = scan.nextInt();
+            option = Integer.parseInt(scan.nextLine());
             if (option == 1) {
                 System.out.println();
                 System.out.println("Which account would you like to withdraw money from? (Enter the number)");
                 System.out.println("1. Savings Account");
                 System.out.println("2. Checking Account");
-                int option2 = scan.nextInt();
+                System.out.println();
+                System.out.print("Option: ");
+                int option2 = Integer.parseInt(scan.nextLine());
                 while (option2 != 1 && option2 != 2) {
                     System.out.println("Please choose a valid option");
                     System.out.println("Which account would you like to withdraw money from? (Enter the number)");
                     System.out.println("1. Savings Account");
                     System.out.println("2. Checking Account");
-                    option2 = scan.nextInt();
+                    System.out.println();
+                    System.out.print("Option: ");
+                    option2 = Integer.parseInt(scan.nextLine());
                 }
                 if (option2 == 1) {
                     System.out.print("How much money would you like to withdraw from your Savings Account? (Multiple of 5): $");
-                    int money = scan.nextInt();
-                    while ((money > saveAccount.getMoney() || money % 5 != 0) && (money > 0)) {
-                        System.out.println("Invalid amount! / Insufficient Funds!");
+                    double money = Double.parseDouble(scan.nextLine());
+                    while ((money > saveAccount.getMoney() || money % 5 != 0) || (money < 0)) {
+                        String transaction = "Money withdrawal of $" + money + " from Savings Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + saveAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: Invalid amount! / Insufficient Funds!");
                         System.out.print("How much money would you like to withdraw from your Savings Account? (Multiple of 5): $");
-                        money = scan.nextInt();
+                        money = Integer.parseInt(scan.nextLine());
                     }
                     System.out.println("Please choose the type of bills you want and the amount.");
                     System.out.print("$20 Bills: ");
-                    int bills20 = scan.nextInt();
+                    int bills20 = Integer.parseInt(scan.nextLine());
                     System.out.print("$5 Bills: ");
-                    int bills5 = scan.nextInt();
-                    while (((bills20 * 20) + (bills5 * 5)) > saveAccount.getMoney()) {
-                        System.out.println("Insufficient Funds!");
+                    int bills5 = Integer.parseInt(scan.nextLine());
+                    while (bills20 < 0 || bills5 < 0){
+                        String transaction = "Money withdrawal of $" + money + " from Savings Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + saveAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: You can't withdraw a negative number of bills!");
                         System.out.println("Please choose the type of bills you want and the amount.");
                         System.out.print("$20 Bills: ");
-                        bills20 = scan.nextInt();
+                        bills20 = Integer.parseInt(scan.nextLine());
                         System.out.print("$5 Bills: ");
-                        bills5 = scan.nextInt();
+                        bills5 = Integer.parseInt(scan.nextLine());
+                    }
+                    System.out.println();
+                    while (((bills20 * 20) + (bills5 * 5)) > saveAccount.getMoney() || ((bills20 * 20) + (bills5 * 5)) != money) {
+                        String transaction = "Money withdrawal of $" + money + " from Savings Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + saveAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: Insufficient Funds! / Invalid amount of bills");
+                        System.out.println("Please choose the type of bills you want and the amount.");
+                        System.out.print("$20 Bills: ");
+                        bills20 = Integer.parseInt(scan.nextLine());
+                        System.out.print("$5 Bills: ");
+                        bills5 = Integer.parseInt(scan.nextLine());
                     }
                     saveAccount.withdrawMoney(money);
+                    String transaction = "Withdrew $" + money + " from Savings Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + saveAccount.getMoney() + "\nStatus: Successful";
+                    System.out.println(transaction);
+                    transactionHistory.increaseTransactionIDA();
+                    transactionHistory.history.add(transaction);
+                    System.out.println();
+                    quitFunction();
+                    if (!quit) {
+                        enterPin();
+                    }
                 }
                 if (option2 == 2) {
                     System.out.print("How much money would you like to withdraw from your Checking Account? (Multiple of 5): $");
-                    int money = scan.nextInt();
-                    while ((money > checkAccount.getMoney() || money % 5 != 0) && (money > 0)) {
-                        System.out.println("Invalid amount! / Insufficient Funds!");
-                        System.out.print("How much money would you like to withdraw from your Checking Account? (Multiple of 5): $");
-                        money = scan.nextInt();
+                    double money = Double.parseDouble(scan.nextLine());
+                    while ((money > checkAccount.getMoney() || money % 5 != 0) || (money < 0)) {
+                        String transaction = "Money withdrawal of $" + money + " from Checking Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + checkAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: Invalid amount! / Insufficient Funds!");
+                        System.out.print("How much money would you like to withdraw from your Savings Account? (Multiple of 5): $");
+                        money = Integer.parseInt(scan.nextLine());
                     }
                     System.out.println("Please choose the type of bills you want and the amount.");
                     System.out.print("$20 Bills: ");
-                    int bills20 = scan.nextInt();
+                    int bills20 = Integer.parseInt(scan.nextLine());
                     System.out.print("$5 Bills: ");
-                    int bills5 = scan.nextInt();
-                    while (((bills20 * 20) + (bills5 * 5)) > checkAccount.getMoney()) {
-                        System.out.println("Insufficient Funds!");
+                    int bills5 = Integer.parseInt(scan.nextLine());
+                    while (bills20 < 0 || bills5 < 0){
+                        String transaction = "Money withdrawal of $" + money + " from Checking Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + checkAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: You can't withdraw a negative number of bills!");
                         System.out.println("Please choose the type of bills you want and the amount.");
                         System.out.print("$20 Bills: ");
-                        bills20 = scan.nextInt();
+                        bills20 = Integer.parseInt(scan.nextLine());
                         System.out.print("$5 Bills: ");
-                        bills5 = scan.nextInt();
+                        bills5 = Integer.parseInt(scan.nextLine());
+                    }
+                    System.out.println();
+                    while (((bills20 * 20) + (bills5 * 5)) > checkAccount.getMoney() || ((bills20 * 20) + (bills5 * 5)) != money) {
+                        String transaction = "Money withdrawal of $" + money + " from Checking Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + checkAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: Insufficient Funds! / Invalid amount of bills");
+                        System.out.println("Please choose the type of bills you want and the amount.");
+                        System.out.print("$20 Bills: ");
+                        bills20 = Integer.parseInt(scan.nextLine());
+                        System.out.print("$5 Bills: ");
+                        bills5 = Integer.parseInt(scan.nextLine());
                     }
                     checkAccount.withdrawMoney(money);
+                    String transaction = "Withdrew $" + money + " from Checking Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + checkAccount.getMoney() + "\nStatus: Successful";
+                    System.out.println(transaction);
+                    transactionHistory.increaseTransactionIDA();
+                    transactionHistory.history.add(transaction);
+                    System.out.println();
+                    quitFunction();
+                    if (!quit) {
+                        enterPin();
+                    }
                 }
             } else if (option == 2) {
                 System.out.println();
                 System.out.println("Which account would you like to deposit money into? (Enter the number)");
                 System.out.println("1. Savings Account");
                 System.out.println("2. Checking Account");
-                int option2 = scan.nextInt();
+                System.out.print("Option: ");
+                int option2 = Integer.parseInt(scan.nextLine());
+                while (option2 != 1 && option2 != 2) {
+                    System.out.println("Please choose a valid option");
+                    System.out.println("Which account would you like to deposit money into? Enter the number)");
+                    System.out.println("1. Savings Account");
+                    System.out.println("2. Checking Account");
+                    System.out.print("Option: ");
+                    option2 = Integer.parseInt(scan.nextLine());
+                }
                 if (option2 == 1) {
                     System.out.print("How much money would you like to deposit into your Savings Account?: $");
-                    int money = scan.nextInt();
+                    double money = Double.parseDouble(scan.nextLine());
+                    while (money < 0){
+                        String transaction = "Deposit of $" + money + " into Savings Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + saveAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: You can't deposit a negative amount of money");
+                        System.out.print("How much money would you like to deposit into your Savings Account?: $");
+                        money = Integer.parseInt(scan.nextLine());
+                    }
                     saveAccount.depositMoney(money);
+                    String transaction = "Deposited $" + money + " into Savings Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + saveAccount.getMoney() + "\nStatus: Successful";
+                    System.out.println(transaction);
+                    transactionHistory.increaseTransactionIDA();
+                    transactionHistory.history.add(transaction);
+                    System.out.println();
+                    quitFunction();
+                    if (!quit) {
+                        enterPin();
+                    }
                 } else {
                     System.out.print("How much money would you like to deposit into your Checking Account?: $");
-                    int money = scan.nextInt();
+                    double money = Double.parseDouble(scan.nextLine());
+                    while (money < 0){
+                        String transaction = "Deposit of $" + money + " into Checking Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + checkAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: You can't deposit a negative amount of money");
+                        System.out.print("How much money would you like to deposit into your Checking Account?: $");
+                        money = Integer.parseInt(scan.nextLine());
+                    }
                     checkAccount.depositMoney(money);
+                    String transaction = "Deposited $" + money + " into Checking Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nAccount Balance: $" + checkAccount.getMoney() + "\nStatus: Successful";
+                    System.out.println(transaction);
+                    transactionHistory.increaseTransactionIDA();
+                    transactionHistory.history.add(transaction);
+                    System.out.println();
+                    quitFunction();
+                    if (!quit) {
+                        enterPin();
+                    }
                 }
-            } else if (option == 3) { //Transfering money function
+            } else if (option == 3) { //Transferring money function
                 System.out.println("Please select the action you would like to perform.");
                 System.out.println("1. Transfer money FROM savings account TO checking account");
                 System.out.println("2. Transfer money FROM checking account TO savings account");
                 System.out.print("Please select an option to continue (1 or 2): ");
-                int transferOption = scan.nextInt();
+                int transferOption = Integer.parseInt(scan.nextLine());
                 System.out.print("Please enter the amount of money you would like to transfer: ");
-                int money1 = scan.nextInt();
+                double money1 = Double.parseDouble(scan.nextLine());
                 if (transferOption == 1) {
-                    while (money1 > saveAccount.getMoney()) {
-                        System.out.println("You don't have enough funds to transfer the specified amount");
+                    while (money1 > saveAccount.getMoney() || money1 < 0) {
+                        String transaction = "Transfer of $" + money1 + " FROM Savings Account TO Checking Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nSavings Account Balance: $" + saveAccount.getMoney() + "\nChecking Account Balance: $" + checkAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("Reason: You don't have enough funds to transfer the specified amount / Enter a valid amount");
                         System.out.print("Please enter a valid amount of funds to transfer from your savings account: ");
-                        money1 = scan.nextInt();;
+                        money1 = Integer.parseInt(scan.nextLine());
                     }
                     saveAccount.withdrawMoney(money1);
                     checkAccount.depositMoney(money1);
+                    System.out.println();
+                    String transaction = "Transferred $" + money1 + " FROM Savings Account TO Checking Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nSavings Account Balance: $" + saveAccount.getMoney() + "\nChecking Account Balance: $" + checkAccount.getMoney() + "\nStatus: Successful";
+                    System.out.println(transaction);
+                    transactionHistory.increaseTransactionIDA();
+                    transactionHistory.history.add(transaction);
+                    System.out.println();
+                    quitFunction();
+                    if (!quit) {
+                        enterPin();
+                    }
                 }
                 if (transferOption == 2) {
-                    while (money1 > checkAccount.getMoney()) {
-                        System.out.println("You don't have enough funds to transfer the specified amount");
+                    while (money1 > checkAccount.getMoney() || money1 < 0) {
+                        String transaction = "Transfer of $" + money1 + " FROM Checking Account TO Savings Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nSavings Account Balance: $" + saveAccount.getMoney() + "\nChecking Account Balance: $" + checkAccount.getMoney() + "\nStatus: Unsuccessful";
+                        System.out.println(transaction);
+                        transactionHistory.increaseTransactionIDA();
+                        transactionHistory.history.add(transaction);
+                        System.out.println();
+                        System.out.println("You don't have enough funds to transfer the specified amount / Enter a valid amount");
                         System.out.print("Please enter a valid amount of funds to transfer from your checking account: ");
-                        money1 = scan.nextInt();;
+                        money1 = Integer.parseInt(scan.nextLine());
                     }
                     checkAccount.withdrawMoney(money1);
                     saveAccount.depositMoney(money1);
+                    System.out.println();
+                    String transaction = "Transferred $" + money1 + " FROM Checking Account TO Savings Account\n" + "Transaction ID: A" + transactionHistory.getTransactionIDA() + "\nSavings Account Balance: $" + saveAccount.getMoney() + "\nChecking Account Balance: $" + checkAccount.getMoney() + "\nStatus: Successful";
+                    System.out.println(transaction);
+                    transactionHistory.increaseTransactionIDA();
+                    transactionHistory.history.add(transaction);
+                    System.out.println();
+                    quitFunction();
+                    if (!quit) {
+                        enterPin();
+                    }
                 }
             } else if (option == 4) {
                 System.out.println();
                 System.out.println("Savings Account: $" + saveAccount.getMoney());
                 System.out.println("Checking Account: $" + checkAccount.getMoney());
+                String transaction = "Checked Account Balances" + "Transaction ID: S" + transactionHistory.getTransactionIDB() + "\nSavings Account: $" + saveAccount.getMoney() + "\nChecking Account: " + checkAccount.getMoney();
+                System.out.println("Checked Account Balances: Successful" + "\nTransaction ID: S" + transactionHistory.getTransactionIDB());
+                transactionHistory.increaseTransactionIDB();
+                transactionHistory.history.add(transaction);
+                System.out.println();
+                quitFunction();
+                if (!quit) {
+                    enterPin();
+                }
+            }
+            else if (option == 5) {
+                System.out.println();
+                System.out.println("----------Transaction History ---------------");
+                System.out.println();
+                String transaction = "Checked Transaction History" + "\nTransaction ID: S" + transactionHistory.getTransactionIDB();
+                transactionHistory.increaseTransactionIDB();
+                transactionHistory.history.add(transaction);
+                transactionHistory.printTransactionHistory();
+                System.out.println("---------------------------------------------");
+                quitFunction();
+                if (!quit) {
+                    enterPin();
+                };
+            }
+            else if (option == 6) {
+                changePin();
+                quitFunction();
+                if (!quit) {
+                    enterPin();
+                }
+            }
+            else if (option == 7){
+                quit = true;
             }
         }
     }
-
-
 }

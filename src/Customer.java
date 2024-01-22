@@ -14,6 +14,9 @@ public class Customer {
     public String getPin(){
         return pin;
     }
+    public String getName(){
+        return name;
+    }
     public void setPin(String changedPin) {
         pin = changedPin;
     }
